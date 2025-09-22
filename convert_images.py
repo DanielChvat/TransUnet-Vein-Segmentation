@@ -6,8 +6,7 @@ import h5py
 def construct_volume_from_slices(slices_folder: str, volume_output_path: str, slice_output_path: str, slice_prefix: str, volume_name: str):
     slices_folder = slices_folder.strip('/')
 
-    image_paths = [os.path.join(slices_folder, filename) 
-                   for filename in sorted(os.listdir(slices_folder))]
+    image_paths = [os.path.join(slices_folder, filename) for filename in sorted(os.listdir(slices_folder))]
 
     images = [np.array(Image.open(path), dtype=np.float32) for path in image_paths]
 
@@ -36,11 +35,35 @@ def save_preprocessed_slices(volume_data, output_folder: str, prefix: str = "sli
         img.save(filename)
     print(f"Saved {len(volume_data)} slices to '{output_folder}'")
 
+def create_train_data(img_slice_folder: str, label_slice_folder: str, output_path: str, prefix: str):
+    img_slice_folder = img_slice_folder.strip('/')
+    label_slice_folder = label_slice_folder.strip('/')
 
+    image_paths = [os.path.join(img_slice_folder, filename) for filename in sorted(os.listdir(img_slice_folder))]
+    label_paths = [os.path.join(label_slice_folder, filename) for filename in sorted(os.listdir(label_slice_folder))]
+    
+    image_data = [np.array(Image.open(path), dtype=np.float32) for path in image_paths]
+    label_data = [np.array(Image.open(path), dtype=np.float32) for path in label_paths]
+
+
+    os.makedirs(output_path, exist_ok=True)
+    for index, (i, l) in enumerate(zip(image_data, label_data)):
+        train_data_dict = {}
+        train_data_dict['image'] = i
+        train_data_dict['label'] = l
+        
+        save_path = os.path.join(output_path, f"{prefix}_slice_{index:04d}.npz")
+        print(save_path)
+        np.savez_compressed(save_path, **train_data_dict)
+
+        
+        
 
 
 if __name__ == '__main__':
     img_folder = './raw_data/OA/imgs'
     label_folder = './raw_data/OA/masks'
-    construct_volume_from_slices(slices_folder=img_folder, volume_output_path='./processed_data/OA/volumes/', slice_output_path='./processed_data/OA/slices/image/', slice_prefix='Slice', volume_name='OA_images.h5')
-    construct_volume_from_slices(slices_folder=label_folder, volume_output_path='./processed_data/OA/volumes/', slice_output_path='./processed_data/OA/slices/label/', slice_prefix='Slice', volume_name='OA_labels.h5')
+    # construct_volume_from_slices(slices_folder=img_folder, volume_output_path='./processed_data/OA/volumes/', slice_output_path='./processed_data/OA/slices/image/', slice_prefix='Slice', volume_name='OA_images.h5')
+    # construct_volume_from_slices(slices_folder=label_folder, volume_output_path='./processed_data/OA/volumes/', slice_output_path='./processed_data/OA/slices/label/', slice_prefix='Slice', volume_name='OA_labels.h5')
+
+    create_train_data(img_slice_folder='./processed_data/OA/slices/image', label_slice_folder='./processed_data/OA/slices/label', output_path='./processed_data/OA/train', prefix='CASE_OA')
