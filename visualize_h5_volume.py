@@ -13,10 +13,12 @@ def visualize_h5_volume(h5_path: str, dataset_name: str):
     
     depth = volume.shape[0]
 
+    print(depth)
+
     fig, ax = plt.subplots()
     plt.subplots_adjust(bottom=0.25)
 
-    slice_idx = depth // 2
+    slice_idx = 0
     img = ax.imshow(volume[slice_idx], cmap='gray')
     ax.set_title(f"Slice {slice_idx}")
     ax.axis("off")
@@ -35,4 +37,4 @@ def visualize_h5_volume(h5_path: str, dataset_name: str):
 
 
 if __name__ == '__main__':
-    visualize_h5_volume('./processed_data/OA/volumes/OA_labels.h5', 'OA_labels.h5')
+    visualize_h5_volume('./processed_data/OA/volumes/OA_images.h5', 'OA_images.h5')

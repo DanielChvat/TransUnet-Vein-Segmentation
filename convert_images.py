@@ -3,7 +3,7 @@ import os
 import numpy as np
 import h5py
 
-def construct_volume_from_slices(slices_folder: str, output_path: str,  volume_name: str):
+def construct_volume_from_slices(slices_folder: str, volume_output_path: str, slice_output_path: str, slice_prefix: str, volume_name: str):
     slices_folder = slices_folder.strip('/')
 
     image_paths = [os.path.join(slices_folder, filename) 
@@ -21,15 +21,26 @@ def construct_volume_from_slices(slices_folder: str, output_path: str,  volume_n
     else:
         volume_data = np.zeros_like(volume_data)
     
-    os.makedirs(output_path, exist_ok=True)
-    with h5py.File(os.path.join(output_path, volume_name), 'w') as hf:
+    save_preprocessed_slices(volume_data=volume_data, output_folder=slice_output_path, prefix=slice_prefix)
+
+    os.makedirs(volume_output_path, exist_ok=True)
+    with h5py.File(os.path.join(volume_output_path, volume_name), 'w') as hf:
         hf.create_dataset(volume_name, data=volume_data, compression="gzip")
-        print(f"Successfully created HDF5 volume at '{output_path}/{volume_name} with dataset {volume_name}")
-        
+        print(f"Successfully created HDF5 volume at '{volume_output_path}/{volume_name} with dataset {volume_name}")
+
+def save_preprocessed_slices(volume_data, output_folder: str, prefix: str = "slice"):
+    os.makedirs(output_folder, exist_ok=True)
+    for i, slice_data in enumerate(volume_data):
+        img = Image.fromarray(slice_data.astype(np.float32))
+        filename = os.path.join(output_folder, f"{prefix}_{i:04d}.tiff")
+        img.save(filename)
+    print(f"Saved {len(volume_data)} slices to '{output_folder}'")
+
+
 
 
 if __name__ == '__main__':
     img_folder = './raw_data/OA/imgs'
     label_folder = './raw_data/OA/masks'
-    construct_volume_from_slices(slices_folder=img_folder, output_path='./processed_data/OA/volumes/', volume_name='OA_images.h5')
-    construct_volume_from_slices(slices_folder=label_folder, output_path='./processed_data/OA/volumes/', volume_name='OA_labels.h5')
+    construct_volume_from_slices(slices_folder=img_folder, volume_output_path='./processed_data/OA/volumes/', slice_output_path='./processed_data/OA/slices/image/', slice_prefix='Slice', volume_name='OA_images.h5')
+    construct_volume_from_slices(slices_folder=label_folder, volume_output_path='./processed_data/OA/volumes/', slice_output_path='./processed_data/OA/slices/label/', slice_prefix='Slice', volume_name='OA_labels.h5')
