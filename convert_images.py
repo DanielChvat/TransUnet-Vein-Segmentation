@@ -61,9 +61,19 @@ def create_train_data(img_slice_folder: str, label_slice_folder: str, output_pat
 
 
 if __name__ == '__main__':
-    img_folder = './raw_data/OA/imgs'
-    label_folder = './raw_data/OA/masks'
-    # construct_volume_from_slices(slices_folder=img_folder, volume_output_path='./processed_data/OA/volumes/', slice_output_path='./processed_data/OA/slices/image/', slice_prefix='Slice', volume_name='OA_images.h5')
-    # construct_volume_from_slices(slices_folder=label_folder, volume_output_path='./processed_data/OA/volumes/', slice_output_path='./processed_data/OA/slices/label/', slice_prefix='Slice', volume_name='OA_labels.h5')
+    OA_img_folder = './raw_data/OA/imgs'
+    OA_label_folder = './raw_data/OA/masks'
+    ICA_img_folder = './raw_data/ICA/imgs'
+    ICA_label_folder = './raw_data/ICA/masks'
+    ICA2_img_folder = './raw_data/ICA2/imgs'
+    ICA2_label_folder = './raw_data/ICA2/masks'
+    construct_volume_from_slices(slices_folder=OA_img_folder, volume_output_path='./processed_data/OA/volumes/', slice_output_path='./processed_data/OA/slices/image/', slice_prefix='Slice', volume_name='OA_images.h5')
+    construct_volume_from_slices(slices_folder=OA_label_folder, volume_output_path='./processed_data/OA/volumes/', slice_output_path='./processed_data/OA/slices/label/', slice_prefix='Slice', volume_name='OA_labels.h5')
+    construct_volume_from_slices(slices_folder=ICA_img_folder, volume_output_path='./processed_data/ICA/volumes/', slice_output_path='./processed_data/ICA/slices/image/', slice_prefix='Slice', volume_name='ICA_images.h5')
+    construct_volume_from_slices(slices_folder=ICA_label_folder, volume_output_path='./processed_data/ICA/volumes/', slice_output_path='./processed_data/ICA/slices/label/', slice_prefix='Slice', volume_name='ICA_labels.h5')
+    construct_volume_from_slices(slices_folder=ICA2_img_folder, volume_output_path='./processed_data/ICA2/volumes/', slice_output_path='./processed_data/ICA2/slices/image/', slice_prefix='Slice', volume_name='ICA2_images.h5')
+    construct_volume_from_slices(slices_folder=ICA2_label_folder, volume_output_path='./processed_data/ICA2/volumes/', slice_output_path='./processed_data/ICA2/slices/label/', slice_prefix='Slice', volume_name='ICA2_labels.h5')
 
     create_train_data(img_slice_folder='./processed_data/OA/slices/image', label_slice_folder='./processed_data/OA/slices/label', output_path='./processed_data/OA/train', prefix='CASE_OA')
+    create_train_data(img_slice_folder='./processed_data/ICA/slices/image', label_slice_folder='./processed_data/ICA/slices/label', output_path='./processed_data/ICA/train', prefix='CASE_ICA')
+    create_train_data(img_slice_folder='./processed_data/ICA2/slices/image', label_slice_folder='./processed_data/ICA2/slices/label', output_path='./processed_data/ICA2/train', prefix='CASE_ICA2')

@@ -7,13 +7,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 
-def visualize_h5_volume(h5_path: str, dataset_name: str):
+def visualize_h5_volume(h5_path: str):
+    dataset_name = h5_path.split('/')[-1]
     with h5py.File(h5_path, 'r') as hf:
         volume = hf[dataset_name][:]
     
     depth = volume.shape[0]
-
-    print(depth)
 
     fig, ax = plt.subplots()
     plt.subplots_adjust(bottom=0.25)
@@ -37,4 +36,4 @@ def visualize_h5_volume(h5_path: str, dataset_name: str):
 
 
 if __name__ == '__main__':
-    visualize_h5_volume('./processed_data/OA/volumes/OA_images.h5', 'OA_images.h5')
+    visualize_h5_volume('./processed_data/ICA2/volumes/ICA2_images.h5')
