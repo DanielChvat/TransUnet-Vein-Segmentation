@@ -56,10 +56,6 @@ def create_train_data(img_slice_folder: str, label_slice_folder: str, output_pat
         print(save_path)
         np.savez_compressed(save_path, **train_data_dict)
 
-        
-        
-
-
 if __name__ == '__main__':
     OA_img_folder = './raw_data/OA/imgs'
     OA_label_folder = './raw_data/OA/masks'
