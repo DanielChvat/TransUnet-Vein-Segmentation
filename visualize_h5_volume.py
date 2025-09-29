@@ -2,22 +2,35 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
+from matplotlib.colors import ListedColormap
 
-def visualize_h5_volume(h5_path: str, key: str = "image"):
-    """Visualize a 3D volume stored in an HDF5 file under the given key ('image' or 'label')."""
+def visualize_h5_volume(h5_path: str, image_key: str = "image", label_key: str = "label"):
+    """Visualize image and label slices from a 3D volume with label overlay on image (background transparent)."""
     with h5py.File(h5_path, 'r') as hf:
-        if key not in hf:
-            raise KeyError(f"Key '{key}' not found in {h5_path}. Available keys: {list(hf.keys())}")
-        volume = hf[key][:]
+        if image_key not in hf or label_key not in hf:
+            raise KeyError(f"Keys '{image_key}' or '{label_key}' not found in {h5_path}. "
+                           f"Available keys: {list(hf.keys())}")
+        image_vol = hf[image_key][:]
+        label_vol = hf[label_key][:]
 
-    depth = volume.shape[0]
+    if image_vol.shape[0] != label_vol.shape[0]:
+        raise ValueError("Image and label volumes must have the same depth (first dimension).")
 
-    fig, ax = plt.subplots()
+    depth = image_vol.shape[0]
+
+    # Build a colormap where 0 = fully transparent, others = jet colors
+    jet = plt.cm.jet(np.linspace(0, 1, 256))
+    jet[0, -1] = 0  # set alpha=0 for value=0
+    cmap_jet_transparent = ListedColormap(jet)
+
+    fig, ax = plt.subplots(figsize=(6, 6))
     plt.subplots_adjust(bottom=0.25)
 
     slice_idx = 0
-    img = ax.imshow(volume[slice_idx], cmap='gray')
-    ax.set_title(f"{key} - Slice {slice_idx}")
+    img_display = ax.imshow(image_vol[slice_idx], cmap='gray')
+    label_display = ax.imshow(label_vol[slice_idx], cmap=cmap_jet_transparent, alpha=0.7)
+
+    ax.set_title(f"Overlay - Slice {slice_idx}")
     ax.axis("off")
 
     ax_slider = plt.axes([0.2, 0.1, 0.6, 0.03])
@@ -25,8 +38,9 @@ def visualize_h5_volume(h5_path: str, key: str = "image"):
 
     def update(val):
         idx = int(slider.val)
-        img.set_data(volume[idx])
-        ax.set_title(f"{key} - Slice {idx}")
+        img_display.set_data(image_vol[idx])
+        label_display.set_data(label_vol[idx])
+        ax.set_title(f"Overlay - Slice {idx}")
         fig.canvas.draw_idle()
 
     slider.on_changed(update)
@@ -34,8 +48,5 @@ def visualize_h5_volume(h5_path: str, key: str = "image"):
 
 
 if __name__ == '__main__':
-    # Example: visualize image volume
-    visualize_h5_volume('./processed_data/ICA2/volumes/ICA2.h5', key="label")
-
-    # Example: visualize label volume
-    # visualize_h5_volume('./processed_data/ICA2/volumes/ICA2.h5', key="label")
+    # Example usage
+    visualize_h5_volume('./processed_data/Cube96/volumes/Cube96.h5')

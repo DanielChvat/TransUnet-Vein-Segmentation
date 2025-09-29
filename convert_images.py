@@ -88,6 +88,7 @@ if __name__ == '__main__':
         "OA": ("./raw_data/OA/imgs", "./raw_data/OA/masks"),
         "ICA": ("./raw_data/ICA/imgs", "./raw_data/ICA/masks"),
         "ICA2": ("./raw_data/ICA2/imgs", "./raw_data/ICA2/masks"),
+        "Cube96": ("./raw_data/Cube96/imgs", "./raw_data/Cube96/masks"),
     }
 
     for name, (img_folder, lbl_folder) in datasets.items():
