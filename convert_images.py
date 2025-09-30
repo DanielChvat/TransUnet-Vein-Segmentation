@@ -3,24 +3,16 @@ import os
 import numpy as np
 import h5py
 
-TARGET_SIZE = (1176, 1176)  # (height, width)
+TARGET_SIZE = (224, 224)  # (height, width), must be divisible by ViT patch size (e.g. 16)
 
-def pad_to_target_size(img_array: np.ndarray, target_size=TARGET_SIZE):
-    """Pads a 2D array with zeros to match the target size, centered."""
-    h, w = img_array.shape
-    th, tw = target_size
-
-    if h > th or w > tw:
-        raise ValueError(f"Image size {(h, w)} is larger than target size {target_size}")
-
-    padded = np.zeros((th, tw), dtype=img_array.dtype)
-
-    # Center the original image in the padded array
-    top = (th - h) // 2
-    left = (tw - w) // 2
-    padded[top:top + h, left:left + w] = img_array
-
-    return padded
+def resize_to_target_size(img_array: np.ndarray, target_size=TARGET_SIZE, is_label=False):
+    """Resizes a 2D array to the target size using interpolation."""
+    img = Image.fromarray(img_array)
+    if is_label:
+        img = img.resize((target_size[1], target_size[0]), Image.NEAREST)   # keep class IDs
+    else:
+        img = img.resize((target_size[1], target_size[0]), Image.BILINEAR)  # smooth interpolation
+    return np.array(img, dtype=img_array.dtype)
 
 def construct_volume_with_labels(img_folder: str, label_folder: str, volume_output_path: str, 
                                  slice_output_path: str, prefix: str, volume_name: str):
@@ -32,9 +24,9 @@ def construct_volume_with_labels(img_folder: str, label_folder: str, volume_outp
     img_paths = [os.path.join(img_folder, f) for f in sorted(os.listdir(img_folder))]
     lbl_paths = [os.path.join(label_folder, f) for f in sorted(os.listdir(label_folder))]
 
-    # Load and pad
-    img_slices = [pad_to_target_size(np.array(Image.open(p), dtype=np.float32)) for p in img_paths]
-    lbl_slices = [pad_to_target_size(np.array(Image.open(p), dtype=np.float32)) for p in lbl_paths]
+    # Load and resize
+    img_slices = [resize_to_target_size(np.array(Image.open(p), dtype=np.float32), is_label=False) for p in img_paths]
+    lbl_slices = [resize_to_target_size(np.array(Image.open(p), dtype=np.float32), is_label=True) for p in lbl_paths]
 
     # Stack to volumes
     img_volume = np.stack(img_slices, axis=0)

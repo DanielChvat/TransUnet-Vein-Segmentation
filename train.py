@@ -30,7 +30,7 @@ parser.add_argument('--deterministic', type=int,  default=1,
 parser.add_argument('--base_lr', type=float,  default=0.01,
                     help='segmentation network learning rate')
 parser.add_argument('--img_size', type=int,
-                    default=1176, help='input patch size of network input')
+                    default=224, help='input patch size of network input')
 parser.add_argument('--seed', type=int,
                     default=1234, help='random seed')
 parser.add_argument('--n_skip', type=int,
@@ -38,7 +38,7 @@ parser.add_argument('--n_skip', type=int,
 parser.add_argument('--vit_name', type=str,
                     default='R50-ViT-B_16', help='select one vit model')
 parser.add_argument('--vit_patches_size', type=int,
-                    default=84, help='vit_patches_size, default is 16')
+                    default=16, help='vit_patches_size, default is 16')
 args = parser.parse_args()
 
 
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     args.list_dir = dataset_config[dataset_name]['list_dir']
     args.is_pretrain = True
     args.exp = 'TU_' + dataset_name + str(args.img_size)
-    snapshot_path = "../model/{}/{}".format(args.exp, 'TU')
+    snapshot_path = "models/{}/{}".format(args.exp, 'TU')
     snapshot_path = snapshot_path + '_pretrain' if args.is_pretrain else snapshot_path
     snapshot_path += '_' + args.vit_name
     snapshot_path = snapshot_path + '_skip' + str(args.n_skip)
@@ -89,5 +89,5 @@ if __name__ == "__main__":
     net = ViT_seg(config_vit, img_size=args.img_size, num_classes=config_vit.n_classes).cuda()
     net.load_from(weights=np.load(config_vit.pretrained_path))
 
-    trainer = {'Synapse': trainer_synapse,}
+    trainer = {'Veinseg': trainer_synapse,}
     trainer[dataset_name](args, net, snapshot_path)

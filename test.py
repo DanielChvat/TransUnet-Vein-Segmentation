@@ -28,17 +28,17 @@ parser.add_argument('--max_iterations', type=int,default=20000, help='maximum ep
 parser.add_argument('--max_epochs', type=int, default=30, help='maximum epoch number to train')
 parser.add_argument('--batch_size', type=int, default=4,
                     help='batch_size per gpu')
-parser.add_argument('--img_size', type=int, default=1176, help='input patch size of network input')
+parser.add_argument('--img_size', type=int, default=224, help='input patch size of network input')
 parser.add_argument('--is_savenii', action="store_true", help='whether to save results during inference')
 
 parser.add_argument('--n_skip', type=int, default=3, help='using number of skip-connect, default is num')
-parser.add_argument('--vit_name', type=str, default='ViT-B_16', help='select one vit model')
+parser.add_argument('--vit_name', type=str, default='R50-ViT-B_16', help='select one vit model')
 
-parser.add_argument('--test_save_dir', type=str, default='../predictions', help='saving prediction as nii!')
+parser.add_argument('--test_save_dir', type=str, default='predictions', help='saving prediction as nii!')
 parser.add_argument('--deterministic', type=int,  default=1, help='whether use deterministic training')
 parser.add_argument('--base_lr', type=float,  default=0.01, help='segmentation network learning rate')
 parser.add_argument('--seed', type=int, default=1234, help='random seed')
-parser.add_argument('--vit_patches_size', type=int, default=84, help='vit_patches_size, default is 16')
+parser.add_argument('--vit_patches_size', type=int, default=16, help='vit_patches_size, default is 16')
 args = parser.parse_args()
 
 
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     dataset_config = {
         'Veinseg': {
             'Dataset': Synapse_dataset,
-            'volume_path': './data/test/ICA2/ICA2.h5',
+            'volume_path': './data/test',
             'list_dir': './lists/lists_Veinseg',
             'num_classes': 3,
             'z_spacing': 1,
@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
     # name the same snapshot defined in train script!
     args.exp = 'TU_' + dataset_name + str(args.img_size)
-    snapshot_path = "../model/{}/{}".format(args.exp, 'TU')
+    snapshot_path = "models/{}/{}".format(args.exp, 'TU')
     snapshot_path = snapshot_path + '_pretrain' if args.is_pretrain else snapshot_path
     snapshot_path += '_' + args.vit_name
     snapshot_path = snapshot_path + '_skip' + str(args.n_skip)
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     logging.info(snapshot_name)
 
     if args.is_savenii:
-        args.test_save_dir = '../predictions'
+        args.test_save_dir = 'predictions'
         test_save_path = os.path.join(args.test_save_dir, args.exp, snapshot_name)
         os.makedirs(test_save_path, exist_ok=True)
     else:
